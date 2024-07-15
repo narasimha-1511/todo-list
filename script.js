@@ -1,97 +1,101 @@
-// Create a "close" button and append it to each list item
-
+// Load items from local storage if available
 var savedItems = JSON.parse(localStorage.getItem("items")) || [];
 var savedItemsChecked = [];
 
+// Get the list
+var list = document.querySelector("#myUL");
+
+// Function to update local storage
 function updateLocalStorage() {
   localStorage.setItem("items", JSON.stringify(savedItems));
 }
 
-var myNodelist = document.getElementsByTagName("LI");
-var i;
-for (i = 0; i < myNodelist.length; i++) {
-  var span = document.createElement("SPAN");
-  var txt = document.createTextNode("\u00D7");
-  span.className = "close";
-  span.appendChild(txt);
-  myNodelist[i].appendChild(span);
-}
-
+// Function to delete an item from the list and local storage
 function deleteItem(index) {
   savedItems.splice(index, 1);
   updateLocalStorage();
   renderList();
 }
 
-// Click on a close button to hide the current list item
-var close = document.getElementsByClassName("close");
-var i;
-for (i = 0; i < close.length; i++) {
-  close[i].onclick = function () {
-    var div = this.parentElement;
-    div.style.display = "none";
-  };
-}
-
-//Updating the array
-if (this.classList.contains("main__item--checked")) {
-  savedItemsChecked.push(itemText);
-} else {
-  // Remove the item from the array if unchecked
-  var checkedIndex = savedItemsChecked.indexOf(itemText);
-  if (checkedIndex !== -1) {
-    savedItemsChecked.splice(checkedIndex, 1);
-  }
-}
-
-// Get the list items
-var list = document.querySelector("#myUL");
-var items = list.querySelectorAll(".main__item");
-
-// Add a click event listener to each item
-items.forEach(function (item) {
-  item.addEventListener("click", function () {
-    // Toggle the "checked" class on the clicked item
-    this.classList.toggle("main__item--checked");
-  });
-});
-
-// Add a new item to the list
-function newElement() {
-  var inputValue = document.querySelector("#myInput").value;
-  if (inputValue === "") {
-    alert("You must enter a task!");
-  } else {
-    //append the new item
+// Function to render the list
+function renderList() {
+  list.innerHTML = "";
+  savedItems.forEach(function (itemText, index) {
     var li = document.createElement("li");
     li.className = "main__item";
-    li.appendChild(document.createTextNode(inputValue));
+    li.appendChild(document.createTextNode(itemText));
     list.appendChild(li);
 
-    //append the close button
+    // Check if the item was checked before and add the class back
+    if (savedItemsChecked.includes(itemText)) {
+      li.classList.add("main__item--checked");
+    }
+
+    // Append the close button
     var span = document.createElement("SPAN");
     var txt = document.createTextNode("\u00D7");
     span.className = "close";
     span.appendChild(txt);
 
-    //This is to close the item
+    // Event listener for deleting the item
     span.addEventListener("click", function () {
-      var div = this.parentElement;
-      div.style.display = "none";
+      deleteItem(index);
     });
     li.appendChild(span);
-    document.querySelector("#myInput").value = "";
 
     // Add a click event listener to the new item
     li.addEventListener("click", function () {
       // Toggle the "checked" class on the clicked item
       this.classList.toggle("main__item--checked");
+
+      // Update the array of checked items
+      if (this.classList.contains("main__item--checked")) {
+        savedItemsChecked.push(itemText);
+      } else {
+        // Remove the item from the array if unchecked
+        var checkedIndex = savedItemsChecked.indexOf(itemText);
+        if (checkedIndex !== -1) {
+          savedItemsChecked.splice(checkedIndex, 1);
+        }
+      }
     });
+  });
+}
+
+// Render the initial list
+renderList();
+
+// Add a new item to the list and store it in local storage
+function newElement() {
+  var inputValue = document.querySelector("#myInput").value;
+  if (inputValue === "") {
+    alert("You must enter a task!");
+  } else {
+    // Add the new item to the savedItems array
+    savedItems.push(inputValue);
+    updateLocalStorage();
+    renderList();
+
+    document.querySelector("#myInput").value = "";
   }
 }
 
+// Get the input field
+var input = document.querySelector("#myInput");
+
+// Execute a function when the user releases a key on the keyboard
+input.addEventListener("keyup", function (event) {
+  // Number 13 is the "Enter" key on the keyboard
+  if (event.keyCode === 13) {
+    // Cancel the default action, if needed
+    event.preventDefault();
+    // Trigger the button element with a click
+    newElement();
+  }
+});
+
 // This is for Dark Mode
-var darkmode = document.getElementsByClassName("Toggle-img")[0];  
+var darkmode = document.getElementsByClassName("Toggle-img")[0];
 darkmode.addEventListener("click", function () {
   document.body.classList.toggle("dark-mode");
   if (document.body.classList.contains("dark-mode")) {
@@ -101,6 +105,6 @@ darkmode.addEventListener("click", function () {
   } else {
     darkmode.src = "assets/sun.png";
     document.body.style.backgroundColor = "white";
+    document.getElementById("lists").style.backgroundColor = "white";
   }
-  // Change the complete background-colors
-})();
+});
