@@ -1,4 +1,12 @@
 // Create a "close" button and append it to each list item
+
+var savedItems = JSON.parse(localStorage.getItem("items")) || [];
+var savedItemsChecked = [];
+
+function updateLocalStorage() {
+  localStorage.setItem("items", JSON.stringify(savedItems));
+}
+
 var myNodelist = document.getElementsByTagName("LI");
 var i;
 for (i = 0; i < myNodelist.length; i++) {
@@ -9,6 +17,12 @@ for (i = 0; i < myNodelist.length; i++) {
   myNodelist[i].appendChild(span);
 }
 
+function deleteItem(index) {
+  savedItems.splice(index, 1);
+  updateLocalStorage();
+  renderList();
+}
+
 // Click on a close button to hide the current list item
 var close = document.getElementsByClassName("close");
 var i;
@@ -17,6 +31,17 @@ for (i = 0; i < close.length; i++) {
     var div = this.parentElement;
     div.style.display = "none";
   };
+}
+
+//Updating the array
+if (this.classList.contains("main__item--checked")) {
+  savedItemsChecked.push(itemText);
+} else {
+  // Remove the item from the array if unchecked
+  var checkedIndex = savedItemsChecked.indexOf(itemText);
+  if (checkedIndex !== -1) {
+    savedItemsChecked.splice(checkedIndex, 1);
+  }
 }
 
 // Get the list items
